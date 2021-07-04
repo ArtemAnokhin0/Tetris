@@ -1,3 +1,3 @@
 # Tetris
-res/ - Resources Root
-tetris/ - Package (class Tetris - main)
+res/ - Resources Root;
+tetris/ - Package (class Tetris - main);
