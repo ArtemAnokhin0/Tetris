@@ -3,6 +3,7 @@ package com.tetris;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.Objects;
 
 public class Tetris extends JFrame implements KeyListener, ActionListener {
     JPanel panel;
@@ -40,7 +41,8 @@ public class Tetris extends JFrame implements KeyListener, ActionListener {
 
                 for(int y=0; y<getRows(); y++)
                     for(int x=0; x<getCols(); x++)
-                        g.drawImage(GameField.get(new Coor(x,y)).img, x *getImageSize(), y *getImageSize(), this);
+                        g.drawImage(GameField.get(new Coor(x,y)).img,
+                                x *getImageSize(), y *getImageSize(), this);
             }
         };
         panel.addMouseListener(new MouseAdapter() {
@@ -96,7 +98,7 @@ public class Tetris extends JFrame implements KeyListener, ActionListener {
     }
 
     private Image getImage(String name){
-        return new ImageIcon(getClass().getResource("/"+name+".png")).getImage();
+        return new ImageIcon(Objects.requireNonNull(getClass().getResource("/" + name + ".png"))).getImage();
     }
 
     @Override
