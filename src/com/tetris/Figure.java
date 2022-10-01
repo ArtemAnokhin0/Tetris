@@ -2,10 +2,10 @@ package com.tetris;
 
 import java.util.ArrayList;
 
-public class Figure {
+abstract class Figure implements Movable{
     ArrayList<Coor> current;
 
-    boolean canMove(ArrayList<Coor> newList){
+    public boolean canMove(ArrayList<Coor> newList){
         for(Coor coor: newList){
             if(coor.getX()<0 || coor.getX()>=10 || coor.getY()<0 || coor.getY()>=Tetris.getRows())
                 return false;
@@ -27,7 +27,7 @@ public class Figure {
             return false;
     }
 
-    void rotate() {
+    public void rotate() {
         ArrayList<Coor> newList = new ArrayList<>();
 
         int centerX = getCurrent().get(0).getX();
@@ -39,7 +39,7 @@ public class Figure {
         move(newList, false);
     }
 
-    void moveLeft() {
+    public void moveLeft() {
         ArrayList<Coor> newList = new ArrayList<>();
         for(Coor coor: getCurrent())
             newList.add(new Coor(coor.getX()-1, coor.getY()));
@@ -47,7 +47,7 @@ public class Figure {
         move(newList, false);
     }
 
-    void moveRight() {
+    public void moveRight() {
         ArrayList<Coor> newList = new ArrayList<>();
         for(Coor coor: getCurrent())
             newList.add(new Coor(coor.getX()+1, coor.getY()));
@@ -55,7 +55,7 @@ public class Figure {
         move(newList, false);
     }
 
-    void moveDown(){
+    public void moveDown(){
         ArrayList<Coor> newList = new ArrayList<>();
         for(Coor coor: getCurrent())
             newList.add(new Coor(coor.getX(), coor.getY()+1));
@@ -63,8 +63,8 @@ public class Figure {
         move(newList, true);
     }
 
-    void move(ArrayList<Coor> newList, boolean canStuck){
-        removeShape(getCurrent());
+    public void move(ArrayList<Coor> newList, boolean canStuck){
+        removeFigure(getCurrent());
 
         if(drawCurrent(newList)){
             setCurrent(newList);
@@ -75,7 +75,7 @@ public class Figure {
         }
     }
 
-    void removeShape(ArrayList<Coor> shape){
+    public void removeFigure(ArrayList<Coor> shape){
         for(Coor coor: shape) {
             GameField.get(coor).isEmpty = true;
             GameField.get(coor).img = Images.N0.img;
