@@ -12,6 +12,5 @@ class GameObject {
         this.img = img;
         this.isEmpty = (img == Images.N0.img);
     }
-
-
+    
 }
