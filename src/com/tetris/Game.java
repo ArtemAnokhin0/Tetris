@@ -11,18 +11,7 @@ class Loop implements Runnable{
         }
     }
 }
-/*
-class Falling implements Runnable{
-    @Override
-    public void run() {
-        boolean moved;
-        do{
-            moved = Game.getCurrentFigure().moveDown();
-            try{Thread.sleep(100);}catch(Exception ignored){}
-        }while (moved);
-    }
-}
-*/
+
 class FigureStuck implements Runnable{
     @Override
     public void run() {
@@ -119,13 +108,7 @@ public class Game {
         if(isStopped())
             restart();
     }
-/*
-    static void fallDown() {
-        Thread thread = new Thread(new Falling());
-        thread.start();
-        try { thread.join(); } catch (InterruptedException ignored) { }
-    }
-*/
+
     static void start(){
         isGameOver = false;
         currentFigure = createFutureFigure();
