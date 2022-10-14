@@ -40,16 +40,20 @@ class Rotate implements Runnable{
 
 
 public class Game {
-    private static boolean isGameOver;
-    private static boolean isPaused = true;
-    private static int score = 4;
+    private static volatile boolean isGameOver;
+    private static volatile boolean isPaused = true;
+    private static int score = 0;
     private static int bestScore;
 
     private static Figure currentFigure;
     private static Figure futureFigure;
 
+    static boolean isStopped(){
+        return (isGameOver || isPaused);
+    }
+
     private static void restart(){
-        score=4;
+        score=0;
         GameField.createGameField();
         isGameOver = false;
         isPaused = true;
@@ -63,10 +67,6 @@ public class Game {
             return "Left button => Continue                  Right button => Restart";
         else
             return "Left button => Pause                     Score: "+score;
-    }
-
-    static boolean isStopped(){
-        return (isGameOver || isPaused);
     }
 
     static void upArrowPressed(){
