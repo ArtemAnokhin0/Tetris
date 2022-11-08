@@ -187,7 +187,8 @@ class ShapeT extends Figure{
                 new Coor(coor.x(),coor.y()),
                 new Coor(coor.x()-1,coor.y()),
                 new Coor(coor.x() ,coor.y()+1),
-                new Coor(coor.x()+1,coor.y())  ));
+                new Coor(coor.x()+1,coor.y())
+        ));
     }
 
 }
