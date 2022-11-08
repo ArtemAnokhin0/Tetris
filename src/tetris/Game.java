@@ -7,7 +7,7 @@ class Loop implements Runnable{
     public void run() {
         while (!Game.isStopped()) {
             Game.getCurrentFigure().moveDown();
-            try{Thread.sleep(300);}catch(Exception ignored){}
+            try{ Thread.sleep(Game.getSpeed()); } catch(Exception ignored){}
         }
     }
 }
@@ -43,30 +43,37 @@ public class Game {
     private static volatile boolean isGameOver;
     private static volatile boolean isPaused = true;
     private static int score = 0;
+    private static int speed = 300;
     private static int bestScore;
 
     private static Figure currentFigure;
     private static Figure futureFigure;
 
-    static boolean isStopped(){
-        return (isGameOver || isPaused);
-    }
+    static void isGameOver(boolean state){ isGameOver = state; }
+    static void isPaused(boolean state){ isPaused = state; }
+    static boolean isStopped(){ return (isGameOver || isPaused); }
 
+    static void setScore(int score) { Game.score=score; }
+    static int getScore(){ return score; }
+
+    static void setSpeed(int speed) { if(speed>=0) Game.speed=speed; }
+    static int getSpeed(){ return speed; }
     private static void restart(){
-        score=0;
+        setScore(0);
+        setSpeed(300);
         GameField.createGameField();
-        isGameOver = false;
-        isPaused = true;
+        isGameOver(false);
+        isPaused(true);
         start();
     }
 
     static String getMsg(){
         if(isGameOver)
-            return "GAME OVER       Score: "+score+"   Best: "+bestScore+"             Right button => Restart";
+            return "GAME OVER       Score: "+getScore()+"   Best: "+bestScore+"             Right button => Restart";
         else if(isPaused)
             return "Left button => Continue                  Right button => Restart";
         else
-            return "Left button => Pause                     Score: "+score;
+            return "Left button => Pause                     Score: "+getScore();
     }
 
     static void upArrowPressed(){
@@ -95,10 +102,10 @@ public class Game {
 
     static void leftButtonPressed(){
         if(isPaused) {
-            isPaused = false;
+            isPaused(false);
             createLoop();
         }else
-            isPaused = true;
+            isPaused(true);
     }
 
     static void rightButtonPressed(){
@@ -107,7 +114,7 @@ public class Game {
     }
 
     static void start(){
-        isGameOver = false;
+        isGameOver(false);
         currentFigure = createFutureFigure();
         currentFigure.drawCurrent(currentFigure.getCurrent());
         futureFigure = createFutureFigure();
@@ -116,13 +123,12 @@ public class Game {
     }
 
     private static void GameOver() {
-        bestScore= Math.max(score, bestScore);
-        isGameOver = true;
+        bestScore = Math.max(getScore(), bestScore);
+        isGameOver(true);
     }
 
     private static void createLoop(){
-        Thread thread = new Thread(new Loop());
-        thread.start();
+        new Thread(new Loop()).start();
     }
 
     static void createNewFigure(){
@@ -132,7 +138,6 @@ public class Game {
                 futureFigure = createFutureFigure();
                 clearFuture();
                 drawFuture();
-                score+=4;
             }else
                 GameOver();
         }
@@ -182,6 +187,9 @@ public class Game {
             GameField.getObj(new Coor(x,yRow)).setIsEmpty(true);
             GameField.getObj(new Coor(x,yRow)).setImg(Images.N0.img);
         }
+
+        setScore(getScore()+10);
+        setSpeed(getSpeed()-10);
 
         for(int y=yRow; y>0; y--)
             for(int x=0; x<10; x++) {
