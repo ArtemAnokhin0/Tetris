@@ -3,12 +3,17 @@ package tetris;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-abstract class Figure implements Movable{
-    ArrayList<Coor> current;
+abstract class Figure implements Movable {
+    protected ArrayList<Coor> current;
+    Figure(int x, int y) { this.current = createNewShape(new Coor(x, y)); }
 
-    public boolean canMove(ArrayList<Coor> newList){
-        for(Coor coor: newList){
-            if(coor.x()<0 || coor.x()>=10 || coor.y()<0 || coor.y()>=Tetris.getRows())
+    ArrayList<Coor> getCurrent() { return current; }
+
+    abstract ArrayList<Coor> createNewShape(Coor coor);
+
+    public boolean canMove(ArrayList<Coor> newList) {
+        for (Coor coor : newList) {
+            if (coor.x() < 0 || coor.x() >= 10 || coor.y() < 0 || coor.y() >= Tetris.getRows())
                 return false;
             if (!GameField.getObj(coor).getIsEmpty())
                 return false;
@@ -16,195 +21,189 @@ abstract class Figure implements Movable{
         return true;
     }
 
-    boolean drawCurrent(ArrayList<Coor> newList){
-        if (canMove(newList)){
-            for(Coor coor: newList) {
+    boolean drawCurrent(ArrayList<Coor> newList) {
+        if (canMove(newList)) {
+            for (Coor coor : newList) {
                 GameField.getObj(coor).setIsEmpty(false);
                 GameField.getObj(coor).setImg(Images.N1.img);
             }
             return true;
-        }
-        else
+        } else
             return false;
     }
 
     public void rotate() {
         ArrayList<Coor> newList = new ArrayList<>();
 
-        int centerX = getCurrent().get(0).x();
-        int centerY = getCurrent().get(0).y();
+        int centerX = current.get(0).x();
+        int centerY = current.get(0).y();
 
-        for(Coor coor: getCurrent())
-            newList.add(new Coor(centerY-coor.y() +centerX,coor.x()-centerX +centerY));
+        for (Coor coor : current)
+            newList.add(new Coor(centerY - coor.y() + centerX, coor.x() - centerX + centerY));
 
         move(newList, false);
     }
 
     public void moveLeft() {
         ArrayList<Coor> newList = new ArrayList<>();
-        for(Coor coor: getCurrent())
-            newList.add(new Coor(coor.x()-1, coor.y()));
+        for (Coor coor : current)
+            newList.add(new Coor(coor.x() - 1, coor.y()));
 
         move(newList, false);
     }
 
     public void moveRight() {
         ArrayList<Coor> newList = new ArrayList<>();
-        for(Coor coor: getCurrent())
-            newList.add(new Coor(coor.x()+1, coor.y()));
+        for (Coor coor : current)
+            newList.add(new Coor(coor.x() + 1, coor.y()));
 
         move(newList, false);
     }
 
-    public void moveDown(){
+    public void moveDown() {
         ArrayList<Coor> newList = new ArrayList<>();
-        for(Coor coor: getCurrent())
-            newList.add(new Coor(coor.x(), coor.y()+1));
+        for (Coor coor : current)
+            newList.add(new Coor(coor.x(), coor.y() + 1));
 
         move(newList, true);
     }
 
-    public void move(ArrayList<Coor> newList, boolean canStuck){
-        removeFigure(getCurrent());
+    public void move(ArrayList<Coor> newList, boolean canStuck) {
+        removeFigure(current);
 
-        if(drawCurrent(newList)){
-            setCurrent(newList);
-        }else{
-            drawCurrent(getCurrent());
-            if(canStuck)
+        if (drawCurrent(newList)) {
+            current = newList;
+        } else {
+            drawCurrent(current);
+            if (canStuck)
                 Game.figureStuck();
         }
     }
 
-    public void removeFigure(ArrayList<Coor> shape){
-        for(Coor coor: shape) {
+    public void removeFigure(ArrayList<Coor> shape) {
+        for (Coor coor : shape) {
             GameField.getObj(coor).setIsEmpty(true);
             GameField.getObj(coor).setImg(Images.N0.img);
         }
     }
 
-    ArrayList<Coor> getCurrent(){
-        return current;
+
+
+    static class ShapeI extends Figure {
+
+        ShapeI() {
+            super(4, 0);
+        }
+
+        public ArrayList<Coor> createNewShape(Coor coor) {
+            return new ArrayList<>(Arrays.asList(
+                    new Coor(coor.x(), coor.y()),
+                    new Coor(coor.x() - 1, coor.y()),
+                    new Coor(coor.x() + 1, coor.y()),
+                    new Coor(coor.x() + 2, coor.y())));
+        }
+
     }
 
-    void setCurrent(ArrayList<Coor> newList){
-        current = newList;
+    static class ShapeJ extends Figure {
+
+        ShapeJ() {
+            super(5, 0);
+        }
+
+        public ArrayList<Coor> createNewShape(Coor coor) {
+            return new ArrayList<>(Arrays.asList(
+                    new Coor(coor.x(), coor.y()),
+                    new Coor(coor.x(), coor.y() + 1),
+                    new Coor(coor.x() - 1, coor.y()),
+                    new Coor(coor.x() - 2, coor.y())));
+        }
+
     }
 
-}
+    static class ShapeL extends Figure {
 
-class ShapeI extends Figure{
+        ShapeL() {
+            super(4, 0);
+        }
 
-    ShapeI(){
-        this.current = createNewShape(new Coor(4,0));
+        public ArrayList<Coor> createNewShape(Coor coor) {
+            return new ArrayList<>(Arrays.asList(
+                    new Coor(coor.x(), coor.y()),
+                    new Coor(coor.x(), coor.y() + 1),
+                    new Coor(coor.x() + 1, coor.y()),
+                    new Coor(coor.x() + 2, coor.y())));
+        }
+
     }
 
-    public ArrayList<Coor> createNewShape(Coor coor){
-        return new ArrayList<>(Arrays.asList(
-                new Coor(coor.x(),coor.y()),
-                new Coor(coor.x()-1,coor.y()),
-                new Coor(coor.x()+1,coor.y()),
-                new Coor(coor.x()+2,coor.y())  ));
+    static class ShapeO extends Figure {
+
+        ShapeO() {
+            super(4, 0);
+        }
+
+        public ArrayList<Coor> createNewShape(Coor coor) {
+            return new ArrayList<>(Arrays.asList(
+                    new Coor(coor.x(), coor.y()),
+                    new Coor(coor.x(), coor.y() + 1),
+                    new Coor(coor.x() + 1, coor.y()),
+                    new Coor(coor.x() + 1, coor.y() + 1)));
+        }
+
+        @Override
+        public void rotate() {
+        }
+
     }
 
-}
+    static class ShapeS extends Figure {
 
-class ShapeJ extends Figure{
+        ShapeS() {
+            super(5, 0);
+        }
 
-    ShapeJ(){
-        this.current = createNewShape(new Coor(5,0));
+        public ArrayList<Coor> createNewShape(Coor coor) {
+            return new ArrayList<>(Arrays.asList(
+                    new Coor(coor.x(), coor.y()),
+                    new Coor(coor.x() + 1, coor.y()),
+                    new Coor(coor.x(), coor.y() + 1),
+                    new Coor(coor.x() - 1, coor.y() + 1)));
+        }
+
     }
 
-    public ArrayList<Coor> createNewShape(Coor coor){
-        return new ArrayList<>(Arrays.asList(
-                new Coor(coor.x(),coor.y()),
-                new Coor(coor.x(),coor.y()+1),
-                new Coor(coor.x()-1,coor.y()),
-                new Coor(coor.x()-2,coor.y())  ));
+    static class ShapeT extends Figure {
+
+        ShapeT() {
+            super(4, 0);
+        }
+
+        public ArrayList<Coor> createNewShape(Coor coor) {
+            return new ArrayList<>(Arrays.asList(
+                    new Coor(coor.x(), coor.y()),
+                    new Coor(coor.x() - 1, coor.y()),
+                    new Coor(coor.x(), coor.y() + 1),
+                    new Coor(coor.x() + 1, coor.y())
+            ));
+        }
+
     }
 
-}
+    static class ShapeZ extends Figure {
 
-class ShapeL extends Figure{
+        ShapeZ() {
+            super(5, 0);
+        }
 
-    ShapeL(){
-        this.current = createNewShape(new Coor(4,0));
-    }
+        public ArrayList<Coor> createNewShape(Coor coor) {
+            return new ArrayList<>(Arrays.asList(
+                    new Coor(coor.x(), coor.y()),
+                    new Coor(coor.x() - 1, coor.y()),
+                    new Coor(coor.x(), coor.y() + 1),
+                    new Coor(coor.x() + 1, coor.y() + 1)));
+        }
 
-    public ArrayList<Coor> createNewShape(Coor coor){
-        return new ArrayList<>(Arrays.asList(
-                new Coor(coor.x(),coor.y()),
-                new Coor(coor.x(),coor.y()+1),
-                new Coor(coor.x()+1,coor.y()),
-                new Coor(coor.x()+2,coor.y())  ));
-    }
-
-}
-
-class ShapeO extends Figure{
-
-    ShapeO(){
-        this.current = createNewShape(new Coor(4,0));
-    }
-
-    public ArrayList<Coor> createNewShape(Coor coor){
-        return new ArrayList<>(Arrays.asList(
-                new Coor(coor.x(),coor.y()),
-                new Coor(coor.x(),coor.y()+1),
-                new Coor(coor.x()+1,coor.y()),
-                new Coor(coor.x()+1,coor.y()+1)  ));
-    }
-
-    @Override
-    public void rotate(){ }
-
-}
-
-class ShapeS extends Figure{
-
-    ShapeS(){
-        this.current = createNewShape(new Coor(5,0));
-    }
-
-    public ArrayList<Coor> createNewShape(Coor coor){
-        return new ArrayList<>(Arrays.asList(
-                new Coor(coor.x(),coor.y()),
-                new Coor(coor.x()+1,coor.y()),
-                new Coor(coor.x(),coor.y()+1),
-                new Coor(coor.x()-1,coor.y()+1)  ));
-    }
-
-}
-
-class ShapeT extends Figure{
-
-    ShapeT(){
-        this.current = createNewShape(new Coor(4,0));
-    }
-
-    public ArrayList<Coor> createNewShape(Coor coor){
-        return new ArrayList<>(Arrays.asList(
-                new Coor(coor.x(),coor.y()),
-                new Coor(coor.x()-1,coor.y()),
-                new Coor(coor.x() ,coor.y()+1),
-                new Coor(coor.x()+1,coor.y())
-        ));
-    }
-
-}
-
-class ShapeZ extends Figure{
-
-    ShapeZ(){
-        this.current = createNewShape(new Coor(5,0));
-    }
-
-    public ArrayList<Coor> createNewShape(Coor coor){
-        return new ArrayList<>(Arrays.asList(
-                new Coor(coor.x(),coor.y()),
-                new Coor(coor.x()-1,coor.y()),
-                new Coor(coor.x(),coor.y()+1),
-                new Coor(coor.x()+1,coor.y()+1)  ));
     }
 
 }
