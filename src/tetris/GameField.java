@@ -29,29 +29,27 @@ public class GameField {
         gameField[y][x] = new GameObj(gameObj.getCoor().x(), gameObj.getCoor().y(), gameObj.getImg());
     }
 
-}
+    static class GameObj {
+        private final Coor coor;
+        private boolean isEmpty;
+        private Image img;
 
-record Coor(int x, int y) {
+        GameObj(int x, int y, Image img){
+            this.coor = new Coor(x,y);
+            this.img = img;
+            this.isEmpty = (img == Images.N0.img);
+        }
 
-}
+        Coor getCoor() {return coor;}
 
-class GameObj {
-    private final Coor coor;
-    private boolean isEmpty;
-    private Image img;
+        void setIsEmpty(boolean isEmpty){this.isEmpty = isEmpty;}
+        boolean getIsEmpty(){return isEmpty;}
 
-    GameObj(int x, int y, Image img){
-        this.coor = new Coor(x,y);
-        this.img = img;
-        this.isEmpty = (img == Images.N0.img);
+        void setImg(Image img){this.img = img;}
+        Image getImg(){return img;}
+
     }
 
-    Coor getCoor() {return coor;}
-
-    void setIsEmpty(boolean isEmpty){this.isEmpty = isEmpty;}
-    boolean getIsEmpty(){return isEmpty;}
-
-    void setImg(Image img){this.img = img;}
-    Image getImg(){return img;}
-
 }
+
+record Coor(int x, int y) {}
