@@ -1,83 +1,44 @@
 package tetris;
 
 import java.util.Random;
-
-class Loop implements Runnable{
-    @Override
-    public void run() {
-        while (!Game.isStopped()) {
-            Game.getCurrentFigure().moveDown();
-            try{ Thread.sleep(Game.getSpeed()); } catch(Exception ignored){}
-        }
-    }
-}
-
-class FigureStuck implements Runnable{
-    @Override
-    public void run() {
-        for(int y=0; y<Tetris.getRows(); y++){
-            boolean rowIsFull = true;
-            for (int x=0; x<10; x++){
-                if(GameField.getObj(new Coor(x,y)).getIsEmpty())
-                    rowIsFull = false;
-            }
-            if(rowIsFull)
-                Game.removeRow(y);
-        }
-        Game.createNewFigure();
-    }
-}
-
-class Rotate implements Runnable{
-    @Override
-    public void run() {
-        if(Game.isStopped())
-            return;
-        Game.getCurrentFigure().rotate();
-    }
-}
-
-
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Game {
     private static volatile boolean isGameOver;
     private static volatile boolean isPaused = true;
-    private static int score = 0;
-    private static int speed = 300;
+    private static final AtomicInteger score = new AtomicInteger();
+    private static final AtomicInteger speed = new  AtomicInteger(300);
     private static int bestScore;
 
     private static Figure currentFigure;
     private static Figure futureFigure;
-
-    static void isGameOver(boolean state){ isGameOver = state; }
-    static void isPaused(boolean state){ isPaused = state; }
     static boolean isStopped(){ return (isGameOver || isPaused); }
 
-    static void setScore(int score) { Game.score=score; }
-    static int getScore(){ return score; }
-
-    static void setSpeed(int speed) { if(speed>=0) Game.speed=speed; }
-    static int getSpeed(){ return speed; }
+    static int getSpeed(){ return speed.get(); }
     private static void restart(){
-        setScore(0);
-        setSpeed(300);
+        score.set(0);
+        speed.set(300);
         GameField.createGameField();
-        isGameOver(false);
-        isPaused(true);
+        isGameOver = false ;
+        isPaused = true;
         start();
     }
 
     static String getMsg(){
         if(isGameOver)
-            return "GAME OVER       Score: "+getScore()+"   Best: "+bestScore+"             Right button => Restart";
+            return "GAME OVER       Score: "+score+"   Best: "+bestScore+"        Right button => Restart";
         else if(isPaused)
             return "Left button => Continue                  Right button => Restart";
         else
-            return "Left button => Pause                     Score: "+getScore();
+            return "Left button => Pause                     Score: "+score;
     }
 
     static void upArrowPressed(){
-        Thread thread = new Thread(new Rotate());
+        Thread thread = new Thread(() -> {
+            if(Game.isStopped())
+                return;
+            Game.getCurrentFigure().rotate();
+        });
         thread.start();
         try {thread.join();} catch (InterruptedException ignored) {}
     }
@@ -102,10 +63,10 @@ public class Game {
 
     static void leftButtonPressed(){
         if(isPaused) {
-            isPaused(false);
+            isPaused = false;
             createLoop();
         }else
-            isPaused(true);
+            isPaused = true;
     }
 
     static void rightButtonPressed(){
@@ -114,7 +75,7 @@ public class Game {
     }
 
     static void start(){
-        isGameOver(false);
+        isGameOver = false;
         currentFigure = createFutureFigure();
         currentFigure.drawCurrent(currentFigure.getCurrent());
         futureFigure = createFutureFigure();
@@ -123,12 +84,17 @@ public class Game {
     }
 
     private static void GameOver() {
-        bestScore = Math.max(getScore(), bestScore);
-        isGameOver(true);
+        bestScore = Math.max(score.get(), bestScore);
+        isGameOver = true;
     }
 
     private static void createLoop(){
-        new Thread(new Loop()).start();
+        new Thread(() -> {
+            while (!Game.isStopped()) {
+                Game.getCurrentFigure().moveDown();
+                try{ Thread.sleep(Game.getSpeed()); } catch(Exception ignored){}
+            }
+        }).start();
     }
 
     static void createNewFigure(){
@@ -146,13 +112,13 @@ public class Game {
     private static Figure createFutureFigure(){
         Random random = new Random();
         return switch (random.nextInt(7)) {
-            case 0 -> new ShapeO();
-            case 1 -> new ShapeI();
-            case 2 -> new ShapeZ();
-            case 3 -> new ShapeT();
-            case 4 -> new ShapeL();
-            case 5 -> new ShapeS();
-            default -> new ShapeJ();
+            case 0 -> new Figure.ShapeO();
+            case 1 -> new Figure.ShapeI();
+            case 2 -> new Figure.ShapeZ();
+            case 3 -> new Figure.ShapeT();
+            case 4 -> new Figure.ShapeL();
+            case 5 -> new Figure.ShapeS();
+            default -> new Figure.ShapeJ();
         };
     }
 
@@ -160,7 +126,7 @@ public class Game {
         currentFigure = futureFigure;
     }
 
-    static Figure getCurrentFigure(){
+    static synchronized Figure getCurrentFigure(){
         return currentFigure;
     }
 
@@ -177,7 +143,19 @@ public class Game {
     }
 
     static void figureStuck(){
-        Thread thread = new Thread(new FigureStuck());
+        Thread thread = new Thread(() -> {
+            for(int y=0; y<Tetris.getRows(); y++){
+                boolean rowIsFull = true;
+                for (int x=0; x<10; x++){
+                    if(GameField.getObj(new Coor(x,y)).getIsEmpty())
+                        rowIsFull = false;
+                }
+                if(rowIsFull)
+                    Game.removeRow(y);
+            }
+            Game.createNewFigure();
+        });
+
         thread.start();
         try { thread.join(); } catch (InterruptedException ignored) { }
     }
@@ -188,8 +166,8 @@ public class Game {
             GameField.getObj(new Coor(x,yRow)).setImg(Images.N0.img);
         }
 
-        setScore(getScore()+10);
-        setSpeed(getSpeed()-10);
+        score.addAndGet(10);
+        if(speed.get()>=10) speed.addAndGet(-10);
 
         for(int y=yRow; y>0; y--)
             for(int x=0; x<10; x++) {
