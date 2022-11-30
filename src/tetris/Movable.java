@@ -3,13 +3,17 @@ package tetris;
 import java.util.ArrayList;
 
 interface Movable {
-    boolean canMove(ArrayList<Coor> newList);
+    boolean mayMove(ArrayList<Coor> newList);
+
     void rotate();
 
-    void moveLeft() ;
-    void moveRight() ;
+    void moveLeft();
+
+    void moveRight();
+
     void moveDown();
-    void move(ArrayList<Coor> newList, boolean canStuck);
+
+    void move(ArrayList<Coor> newList, boolean mayStuck);
 
     void removeFigure(ArrayList<Coor> shape);
 
