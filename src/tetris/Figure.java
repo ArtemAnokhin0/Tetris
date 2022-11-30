@@ -32,10 +32,11 @@ abstract class Figure implements Movable {
                 GameField.getObj(coor).isEmpty(false);
                 GameField.getObj(coor).setImg(Images.N1.img);
             }
-            
-        } 
-        
-        return mayMove(newList);
+
+            return true;
+        }
+
+        return false;
     }
 
     public void rotate() {
