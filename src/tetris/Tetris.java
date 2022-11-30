@@ -16,33 +16,33 @@ public class Tetris extends JFrame implements KeyListener, ActionListener {
         new Tetris();
     }
 
-    Tetris(){
+    Tetris() {
         setImages();
         initLabel();
         initPanel();
         initFrame();
         GameField.createGameField();
         Game.start();
-        Timer timer = new Timer(5,this);
+        Timer timer = new Timer(5, this);
         timer.start();
         addKeyListener(this);
     }
 
-    private void initLabel(){
+    private void initLabel() {
         label = new JLabel("Left button => Start Game                     <<  Welcome! >>");
         add(label, BorderLayout.SOUTH);
     }
 
-    private void initPanel(){
-        panel = new JPanel(){
+    private void initPanel() {
+        panel = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
 
-                for(int y=0; y<getRows(); y++)
-                    for(int x=0; x<getCols(); x++)
-                        g.drawImage(GameField.getObj(new Coor(x,y)).getImg(),
-                                x *getImageSize(), y *getImageSize(), this);
+                for (int y = 0; y < getRows(); y++)
+                    for (int x = 0; x < getCols(); x++)
+                        g.drawImage(GameField.getObj(new Coor(x, y)).getImg(),
+                                x * getImageSize(), y * getImageSize(), this);
             }
         };
         panel.addMouseListener(new MouseAdapter() {
@@ -50,44 +50,44 @@ public class Tetris extends JFrame implements KeyListener, ActionListener {
             public void mousePressed(MouseEvent e) {
                 //int x = e.getX()/getImageSize();
                 //int y = e.getY()/getImageSize();
-                if(e.getButton() == MouseEvent.BUTTON1)
+                if (e.getButton() == MouseEvent.BUTTON1)
                     Game.leftButtonPressed();
-                if(e.getButton() == MouseEvent.BUTTON3)
+                if (e.getButton() == MouseEvent.BUTTON3)
                     Game.rightButtonPressed();
                 label.setText(Game.getMsg());
                 panel.repaint();
             }
         });
-        panel.setPreferredSize(new Dimension(COLS*IMAGE_SIZE,ROWS*IMAGE_SIZE));
+        panel.setPreferredSize(new Dimension(COLS * IMAGE_SIZE, ROWS * IMAGE_SIZE));
         add(panel);
     }
 
     // void paint(){panel.repaint();}
 
-    private void initFrame(){
+    private void initFrame() {
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setTitle("Tetris");
         setLocationRelativeTo(null);
-        setLocation(20,20);
+        setLocation(20, 20);
         setResizable(false);
         setVisible(true);
         setIconImage(Images.ICON.img);
         pack();
     }
 
-    static int getCols(){
+    static int getCols() {
         return COLS;
     }
 
-    static int getRows(){
+    static int getRows() {
         return ROWS;
     }
 
-    static int getImageSize(){
+    static int getImageSize() {
         return IMAGE_SIZE;
     }
 
-    private void setImages(){
+    private void setImages() {
         Images.N0.img = getImage("0");
         Images.N1.img = getImage("1");
         Images.NONE.img = getImage("none");
@@ -95,7 +95,7 @@ public class Tetris extends JFrame implements KeyListener, ActionListener {
 
     }
 
-    private Image getImage(String name){
+    private Image getImage(String name) {
         return new ImageIcon(Objects.requireNonNull(getClass().getResource("/" + name + ".png"))).getImage();
     }
 
@@ -103,23 +103,23 @@ public class Tetris extends JFrame implements KeyListener, ActionListener {
     public void keyTyped(KeyEvent e) {
         label.setText(Game.getMsg());
         panel.repaint();
-        panel.setPreferredSize(new Dimension(COLS*IMAGE_SIZE,ROWS*IMAGE_SIZE));
+        panel.setPreferredSize(new Dimension(COLS * IMAGE_SIZE, ROWS * IMAGE_SIZE));
         add(panel);
     }
 
     @Override
     public void keyPressed(KeyEvent e) {
-        if(e.getKeyCode() == KeyEvent.VK_UP)
+        if (e.getKeyCode() == KeyEvent.VK_UP)
             Game.upArrowPressed();
-        if(e.getKeyCode() == KeyEvent.VK_LEFT)
+        if (e.getKeyCode() == KeyEvent.VK_LEFT)
             Game.leftArrowPressed();
-        if(e.getKeyCode() == KeyEvent.VK_RIGHT)
+        if (e.getKeyCode() == KeyEvent.VK_RIGHT)
             Game.rightArrowPressed();
-        if(e.getKeyCode() == KeyEvent.VK_DOWN)
+        if (e.getKeyCode() == KeyEvent.VK_DOWN)
             Game.downArrowPressed();
         label.setText(Game.getMsg());
         panel.repaint();
-        panel.setPreferredSize(new Dimension(COLS*IMAGE_SIZE,ROWS*IMAGE_SIZE));
+        panel.setPreferredSize(new Dimension(COLS * IMAGE_SIZE, ROWS * IMAGE_SIZE));
         add(panel);
     }
 
@@ -127,7 +127,7 @@ public class Tetris extends JFrame implements KeyListener, ActionListener {
     public void keyReleased(KeyEvent e) {
         label.setText(Game.getMsg());
         panel.repaint();
-        panel.setPreferredSize(new Dimension(COLS*IMAGE_SIZE,ROWS*IMAGE_SIZE));
+        panel.setPreferredSize(new Dimension(COLS * IMAGE_SIZE, ROWS * IMAGE_SIZE));
         add(panel);
     }
 
@@ -135,4 +135,5 @@ public class Tetris extends JFrame implements KeyListener, ActionListener {
     public void actionPerformed(ActionEvent e) {
         repaint();
     }
+    
 }
