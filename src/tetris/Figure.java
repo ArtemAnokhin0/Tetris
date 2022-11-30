@@ -5,31 +5,37 @@ import java.util.Arrays;
 
 abstract class Figure implements Movable {
     protected ArrayList<Coor> current;
-    Figure(int x, int y) { this.current = createNewShape(new Coor(x, y)); }
 
-    ArrayList<Coor> getCurrent() { return current; }
+    Figure(int x, int y) {
+        this.current = createNewShape(new Coor(x, y));
+    }
+
+    ArrayList<Coor> getCurrent() {
+        return current;
+    }
 
     abstract ArrayList<Coor> createNewShape(Coor coor);
 
-    public boolean canMove(ArrayList<Coor> newList) {
+    public boolean mayMove(ArrayList<Coor> newList) {
         for (Coor coor : newList) {
             if (coor.x() < 0 || coor.x() >= 10 || coor.y() < 0 || coor.y() >= Tetris.getRows())
                 return false;
-            if (!GameField.getObj(coor).getIsEmpty())
+            if (!GameField.getObj(coor).isEmpty())
                 return false;
         }
         return true;
     }
 
     boolean drawCurrent(ArrayList<Coor> newList) {
-        if (canMove(newList)) {
+        if (mayMove(newList)) {
             for (Coor coor : newList) {
-                GameField.getObj(coor).setIsEmpty(false);
+                GameField.getObj(coor).isEmpty(false);
                 GameField.getObj(coor).setImg(Images.N1.img);
             }
-            return true;
-        } else
-            return false;
+            
+        } 
+        
+        return mayMove(newList);
     }
 
     public void rotate() {
@@ -68,25 +74,24 @@ abstract class Figure implements Movable {
         move(newList, true);
     }
 
-    public void move(ArrayList<Coor> newList, boolean canStuck) {
+    public void move(ArrayList<Coor> newList, boolean mayStuck) {
         removeFigure(current);
 
         if (drawCurrent(newList)) {
             current = newList;
         } else {
             drawCurrent(current);
-            if (canStuck)
+            if (mayStuck)
                 Game.figureStuck();
         }
     }
 
     public void removeFigure(ArrayList<Coor> shape) {
         for (Coor coor : shape) {
-            GameField.getObj(coor).setIsEmpty(true);
+            GameField.getObj(coor).isEmpty(true);
             GameField.getObj(coor).setImg(Images.N0.img);
         }
     }
-
 
 
     static class ShapeI extends Figure {
